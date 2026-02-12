@@ -1,10 +1,9 @@
 name: Price Grep Daily Update
 
 on:
-  schedule:
-    # 每天北京时间 06:00 运行 (UTC 22:00 前一天)
-    - cron: "0 22 * * *"
-  workflow_dispatch: # 支持手动触发
+  # schedule:
+  #   - cron: "0 22 * * *"
+  workflow_dispatch:
 
 jobs:
   update-data:
