@@ -1,1 +1,0 @@
-"""news-read simple package."""
