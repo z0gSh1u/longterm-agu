@@ -14,10 +14,14 @@ from dotenv import load_dotenv
 from .fetcher import (
     fetch_markdown,
     get_breakfast_links,
-    get_latest_breakfast_link,
     split_news_summaries,
 )
-from .storage import NewsItem, append_daily_data, save_full_history
+from .storage import (
+    NewsItem,
+    append_single_item,
+    get_existing_dates,
+    log_error,
+)
 
 
 _env_path = Path(__file__).parent.parent.parent / ".env"
@@ -46,57 +50,48 @@ def _process_link(
     ]
 
 
-def run_full_mode() -> None:
+def run() -> None:
     print("=" * 50)
-    print("运行模式: FULL (全量获取)")
+    print("运行模式: 自动增量补齐")
     print("=" * 50)
 
     firecrawl_key = _require_env("FIRECRAWL_API_KEY")
     openai_key = _require_env("OPENAI_API_KEY")
     base_url = os.environ.get("OPENAI_BASE_URL")
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    model = os.environ.get("OPENAI_MODEL", "let-it-crash")
 
     links = get_breakfast_links()
     if not links:
         raise ValueError("未获取到财经早餐链接")
 
-    all_items: list[NewsItem] = []
-    for link in links:
+    existing_dates = get_existing_dates()
+    links_to_process = [link for link in links if link.date not in existing_dates]
+
+    print(f"已存在日期: {len(existing_dates)} 个")
+    print(f"待处理日期: {len(links_to_process)} 个")
+
+    if not links_to_process:
+        print("所有日期已存在，无需处理")
+        return
+
+    success_count = 0
+    error_count = 0
+    for link in links_to_process:
         print(f"处理: {link.date} {link.url}")
-        all_items.extend(
-            _process_link(
+        try:
+            items = _process_link(
                 link.date, link.url, firecrawl_key, openai_key, base_url, model
             )
-        )
-
-    save_full_history(all_items)
-
-    print("\n" + "=" * 50)
-    print("全量数据获取完成!")
-    print("=" * 50)
-
-
-def run_daily_mode() -> None:
-    print("=" * 50)
-    print("运行模式: DAILY (增量更新)")
-    print("=" * 50)
-
-    firecrawl_key = _require_env("FIRECRAWL_API_KEY")
-    openai_key = _require_env("OPENAI_API_KEY")
-    base_url = os.environ.get("OPENAI_BASE_URL")
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
-
-    latest = get_latest_breakfast_link()
-    if latest is None:
-        raise ValueError("未获取到财经早餐链接")
-
-    items = _process_link(
-        latest.date, latest.url, firecrawl_key, openai_key, base_url, model
-    )
-    new_count = append_daily_data(items)
+            for item in items:
+                if append_single_item(item):
+                    success_count += 1
+        except Exception as e:
+            error_count += 1
+            log_error(link.date, link.url, str(e))
+            print(f"  错误: {e} (已记录到错误日志)")
 
     print("\n" + "=" * 50)
-    print(f"每日更新完成! 新增 {new_count} 条记录")
+    print(f"执行完成! 成功: {success_count}, 错误: {error_count}")
     print("=" * 50)
 
 
@@ -105,20 +100,11 @@ def main() -> None:
         prog="news-read",
         description="财经早餐采集工具",
     )
-    parser.add_argument(
-        "--mode",
-        choices=["full", "daily"],
-        required=True,
-        help="运行模式: full=全量获取, daily=增量更新",
-    )
 
-    args = parser.parse_args()
+    args = parser.parse_args([])
 
     try:
-        if args.mode == "full":
-            run_full_mode()
-        elif args.mode == "daily":
-            run_daily_mode()
+        run()
     except Exception as exc:
         print(f"\n错误: {exc}", file=sys.stderr)
         sys.exit(1)

@@ -8,6 +8,7 @@ import pandas as pd
 
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
+ERROR_LOG_PATH = DATA_DIR / "price_grep_errors.txt"
 
 
 def get_data_path(category: str, name: str) -> Path:
@@ -36,6 +37,7 @@ def append_daily_data(df: pd.DataFrame, category: str, name: str) -> int:
     existing_df = load_existing_data(category, name)
 
     if existing_df is None:
+        df = df.sort_values("date", ascending=True).reset_index(drop=True)
         save_full_history(df, category, name)
         return len(df)
 
@@ -49,9 +51,23 @@ def append_daily_data(df: pd.DataFrame, category: str, name: str) -> int:
         print(f"  {name}: 无新数据")
         return 0
 
+    new_rows = new_rows.sort_values("date", ascending=True)
     new_rows.to_csv(
         file_path, mode="a", header=False, index=False, encoding="utf-8-sig"
     )
     print(f"  {name}: 新增 {len(new_rows)} 条记录")
 
     return len(new_rows)
+
+
+def get_existing_dates(category: str, name: str) -> set[str]:
+    existing_df = load_existing_data(category, name)
+    if existing_df is None:
+        return set()
+    return set(existing_df["date"].astype(str).tolist())
+
+
+def log_error(category: str, name: str, error: str) -> None:
+    ERROR_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(ERROR_LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(f"Category: {category}, Name: {name}\nError: {error}\n{'-' * 40}\n")

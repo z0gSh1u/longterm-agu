@@ -11,6 +11,7 @@ import pandas as pd
 
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
+ERROR_LOG_PATH = DATA_DIR / "news_read_errors.txt"
 
 
 @dataclass(frozen=True)
@@ -25,36 +26,36 @@ def get_data_path() -> Path:
     return DATA_DIR / "news_breakfast.csv"
 
 
-def save_full_history(items: list[NewsItem]) -> None:
+def log_error(date: str, url: str, error: str) -> None:
+    ERROR_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(ERROR_LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(f"Date: {date}\nURL: {url}\nError: {error}\n{'-' * 40}\n")
+
+
+def append_single_item(item: NewsItem) -> bool:
     file_path = get_data_path()
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    df = pd.DataFrame([item.__dict__ for item in items])
-    df.to_csv(file_path, index=False, encoding="utf-8-sig")
-    print(f"  已保存到 {file_path} ({len(df)} 条记录)")
-
-
-def append_daily_data(items: list[NewsItem]) -> int:
-    file_path = get_data_path()
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-
-    new_df = pd.DataFrame([item.__dict__ for item in items])
-    if new_df.empty:
-        return 0
+    new_df = pd.DataFrame([item.__dict__])
 
     if not file_path.exists():
-        save_full_history(items)
-        return len(new_df)
+        new_df.to_csv(file_path, index=False, encoding="utf-8-sig")
+        return True
 
     old_df = pd.read_csv(file_path, encoding="utf-8-sig")
     merged = pd.concat([old_df, new_df], ignore_index=True)
     merged = merged.drop_duplicates(subset=["date", "summary"], keep="first")
+    merged = merged.sort_values("date", ascending=True, kind='stable').reset_index(drop=True)
 
-    new_count = len(merged) - len(old_df)
-    if new_count > 0:
+    if len(merged) > len(old_df):
         merged.to_csv(file_path, index=False, encoding="utf-8-sig")
-        print(f"  新增 {new_count} 条记录")
-    else:
-        print("  无新数据")
+        return True
+    return False
 
-    return new_count
+
+def get_existing_dates() -> set[str]:
+    file_path = get_data_path()
+    if not file_path.exists():
+        return set()
+    df = pd.read_csv(file_path, encoding="utf-8-sig")
+    return set(df["date"].unique())

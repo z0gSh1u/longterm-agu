@@ -83,17 +83,15 @@ def get_breakfast_links() -> list[BreakfastLink]:
     return links
 
 
-def get_latest_breakfast_link() -> BreakfastLink | None:
-    links = get_breakfast_links()
-    if not links:
-        return None
-    links.sort(key=lambda item: item.date, reverse=True)
-    return links[0]
-
-
 def fetch_markdown(api_key: str, url: str) -> str:
     client = Firecrawl(api_key=api_key)
-    result = client.scrape(url, formats=["markdown"])
+    result = client.scrape(
+        url,
+        formats=["markdown"],
+        include_tags=["#ContentBody", ".txtinfos"],
+        wait_for=10000,
+        only_main_content=True,
+    )
 
     if isinstance(result, dict):
         markdown = result.get("markdown")
@@ -133,12 +131,20 @@ def split_news_summaries(
     )
 
     text = completion.choices[0].message.content or ""
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1] if "\n" in text else text
+        if text.endswith("```"):
+            text = text[:-3].strip()
+        elif "```" in text:
+            text = text.split("```")[0].strip()
+
     try:
         data = json.loads(text)
         if isinstance(data, list):
-            items = [str(item) for item in data]
+            items = [str(item).strip('"').strip() for item in data]
         else:
-            items = [str(data)]
+            items = [str(data).strip('"').strip()]
     except Exception:
         items = [line.strip("-•* ") for line in text.splitlines() if line.strip()]
 
