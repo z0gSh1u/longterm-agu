@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from datetime import date, timedelta
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 
@@ -52,7 +53,7 @@ def _next_id(df: pd.DataFrame) -> int:
     """获取下一个可用 ID。"""
     if df.empty:
         return 1
-    return int(df["id"].max()) + 1
+    return int(df["id"].max()) + 1  # type: ignore[arg-type]
 
 
 def add_event(
@@ -94,7 +95,7 @@ def remove_event(event_id: int) -> bool:
     if event_id not in df["id"].values:
         return False
 
-    df = df[df["id"] != event_id]
+    df = cast(pd.DataFrame, df[df["id"] != event_id])
     _save_df(df)
     return True
 
@@ -106,9 +107,12 @@ def query_events(date_from: str, date_to: str) -> list[CalendarEvent]:
         return []
 
     mask = (df["date"] >= date_from) & (df["date"] <= date_to)
-    filtered = df[mask].sort_values("date", ascending=True)
+    filtered = cast(pd.DataFrame, df[mask]).sort_values("date")
 
-    return [CalendarEvent(**row) for row in filtered.to_dict("records")]
+    return [
+        CalendarEvent(**{str(k): v for k, v in row.items()})
+        for row in filtered.to_dict("records")
+    ]
 
 
 def upcoming_events(days: int = 14) -> list[CalendarEvent]:

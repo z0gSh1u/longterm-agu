@@ -9,10 +9,10 @@
 **指数列表**：
 
 - 上证指数 (sse_composite)
-  
+
   1990-12-19 起始
   [data/stock_index_sse_composite.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/stock_index_sse_composite.csv)
-  
+
 - 沪深300 (csi300)
 
   2005-01-04 起始
@@ -53,6 +53,7 @@ date,code,name,open,close,high,low,amplitude
 数据源：akshare，上海黄金交易所（SGE）现货基准价
 
 **说明**：
+
 - 黄金基准价（沪金）：单位 元/克
   [data/precious_metal_gold.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/precious_metal_gold.csv)
 - 白银基准价（沪银）：单位 元/千克
@@ -99,6 +100,51 @@ uv run news-read
 ```
 
 环境变量需在中 `.env` 配置，参考 `.env.example`。
+
+### 日历事件管理 (calendar-tool)
+
+管理投资事件日历（财报、央行会议、政策发布等）：
+
+```bash
+# 添加事件
+uv run calendar-tool add --date 2026-03-20 --event "美联储利率决议" --category macro
+
+# 查看未来 14 天事件
+uv run calendar-tool upcoming --days 14
+
+# 按日期范围查询
+uv run calendar-tool query --from 2026-03-01 --to 2026-03-31
+
+# 删除事件
+uv run calendar-tool remove --id 1
+```
+
+事件分类：`macro`（宏观）、`policy`（政策）、`earnings`（财报）、`geopolitical`（地缘）、`market`（市场）、`other`
+
+## 投资分析 Skills
+
+本项目集成了两个 Skills，可在支持 Agent Skills 的 AI 编程助手（如 Claude Code、OpenCode）中触发对话式投资分析。**所有分析仅供参考，不构成投资建议。**
+
+在项目目录中启动 Claude Code，Skills 位于 `.claude/skills/`，会自动发现并按需加载。
+
+### 生成投资报告
+
+触发 investment-analysis Skill 即可生成今日投资报告，并保存到 `docs/reports/`：
+
+```
+/investment-analysis
+```
+
+默认包含市场概览、技术面分析、消息面解读、跨市场联动、前瞻研判、风险提示等内容。示例如 [2026-02-23-daily.md](./docs/reports/2026-02-23-daily.md)。
+
+### 事件日历管理
+
+触发 calendar-management Skill 可管理投资事件日历：
+
+```
+/calendar-management 帮我添加一个日历事件：3月20日美联储利率决议
+/calendar-management 从近三天的新闻中提取有明确日期的事件，并加入日历
+```
 
 ## License
 

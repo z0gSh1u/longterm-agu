@@ -1,121 +1,128 @@
-# Skill: investment-analysis
+---
+name: investment-analysis
+description: Analyze Chinese and global financial markets using local price data, news, and calendar events. Use when the user asks about market trends, investment analysis, stock indices, precious metals, or requests an investment report. Also use when the user mentions specific indices (上证, 沪深300, 创业板, 恒生, 标普500, 纳斯达克) or metals (黄金, 白银, 沪金, 沪银).
+compatibility: Requires uv and the calendar-tool entry point defined in pyproject.toml
+---
 
-Use when the user asks about market trends, investment analysis, stock indices, precious metals, or requests an investment report. Also use when the user mentions specific indices (上证, 沪深300, 创业板, 恒生, 标普500, 纳斯达克) or metals (黄金, 白银, 沪金, 沪银).
+# 投资分析
 
-## Available Data
+## 可用数据
 
-All data is in the `data/` directory:
+所有数据位于 `data/` 目录：
 
-### Stock Indices (daily OHLC)
+### 股票指数（日线 OHLC）
 
-| File | Index | Fields |
-|------|-------|--------|
+| 文件                                 | 指数     | 字段                                                |
+| ------------------------------------ | -------- | --------------------------------------------------- |
 | `data/stock_index_sse_composite.csv` | 上证指数 | date, code, name, open, close, high, low, amplitude |
-| `data/stock_index_csi300.csv` | 沪深300 | same |
-| `data/stock_index_chinext.csv` | 创业板指 | same |
-| `data/stock_index_hsi.csv` | 恒生指数 | same |
-| `data/stock_index_sp500.csv` | 标普500 | same |
-| `data/stock_index_nasdaq.csv` | 纳斯达克 | same |
+| `data/stock_index_csi300.csv`        | 沪深300  | 同上                                                |
+| `data/stock_index_chinext.csv`       | 创业板指 | 同上                                                |
+| `data/stock_index_hsi.csv`           | 恒生指数 | 同上                                                |
+| `data/stock_index_sp500.csv`         | 标普500  | 同上                                                |
+| `data/stock_index_nasdaq.csv`        | 纳斯达克 | 同上                                                |
 
-Price direction: close > open = 涨, close < open = 跌
+涨跌判断：收盘 > 开盘 = 涨，收盘 < 开盘 = 跌
 
-### Precious Metals (daily, 元/克 for gold, 元/千克 for silver)
+### 贵金属（日线，沪金单位：元/克；沪银单位：元/千克）
 
-| File | Metal | Fields |
-|------|-------|--------|
-| `data/precious_metal_gold.csv` | 沪金 | date, evening_price, morning_price |
+| 文件                             | 品种 | 字段                               |
+| -------------------------------- | ---- | ---------------------------------- |
+| `data/precious_metal_gold.csv`   | 沪金 | date, evening_price, morning_price |
 | `data/precious_metal_silver.csv` | 沪银 | date, evening_price, morning_price |
 
-### Financial News
+### 财经新闻
 
-| File | Fields |
-|------|--------|
+| 文件                      | 字段                              |
+| ------------------------- | --------------------------------- |
 | `data/news_breakfast.csv` | date, summary, source_url, source |
 
-Daily financial breakfast summaries from EastMoney, processed by AI.
+来自东方财富的每日财经早餐摘要，经 AI 处理。
 
-### Calendar Events
+### 日历事件
 
-| File | Fields |
-|------|--------|
+| 文件                | 字段                                          |
+| ------------------- | --------------------------------------------- |
 | `data/calendar.csv` | id, date, event, category, source, added_date |
 
-Managed via `uv run calendar-tool` CLI. See calendar-manager skill.
+通过 `uv run calendar-tool` CLI 管理，详见 calendar-manager skill。
 
-## Analysis Workflow
+## 分析流程
 
-When performing investment analysis, follow these steps IN ORDER:
+执行投资分析时，**按以下顺序**逐步操作：
 
-### Step 1: Load Data
+### 第一步：加载数据
 
-Use the Read tool to read the relevant CSV files. For recent analysis, read the last 200 lines of each file (use `offset` parameter). For long-term trend analysis, read more.
+使用 Read 工具读取相关 CSV 文件。近期分析读取每个文件末尾 200 行（使用 `offset` 参数）；长期趋势分析适当多读。
 
-Always check the latest date in each file and note if data is stale (not updated to today).
+也可以使用 Grep 工具带着日期来读取 CSV 文件，快速定位到所需数据行。
 
-### Step 2: Check Calendar
+始终检查每个文件中的最新日期，若数据未更新到今天，须向用户说明数据滞后情况。
+
+### 第二步：查看日历
 
 ```bash
 uv run calendar-tool upcoming --days 14
 ```
 
-Review all upcoming events and their potential market impact before proceeding with analysis.
+在开始分析前，先浏览所有近期事件及其潜在市场影响。
 
-### Step 3: Technical Analysis
+### 第三步：技术面分析
 
-Based on OHLC data, analyze:
+基于 OHLC 数据分析：
 
-- **Trend direction**: Compare recent 5/10/20/60 trading days. Is the market trending up, down, or sideways?
-- **Support & resistance**: Identify recent highs and lows, key round-number levels
-- **Amplitude/Volatility**: Is volatility expanding or contracting? What does this signal?
-- **Price position**: Where is current price relative to recent range? Near recent high (resistance pressure) or low (potential support)?
+- **趋势方向**：对比近 5/10/20/60 个交易日，市场处于上升、下降还是横盘？
+- **支撑与压力**：识别近期高点低点、关键整数关口
+- **振幅/波动率**：波动率是扩张还是收窄？释放什么信号？
+- **价格位置**：当前价格在近期区间中处于什么位置？靠近近期高点（压力区）还是低点（支撑区）？
 
-Compute mentally from the data:
-- MA5 = average of last 5 closes
-- MA10 = average of last 10 closes
-- MA20 = average of last 20 closes
+在脑中对数据做如下计算：
 
-Note whether short-term MA is above or below long-term MA (golden cross / death cross signals).
+- MA5 = 最近 5 根收盘均值
+- MA10 = 最近 10 根收盘均值
+- MA20 = 最近 20 根收盘均值
 
-### Step 4: News Analysis
+判断短期均线是否在长期均线上方（金叉 / 死叉信号）。
 
-Read recent entries from `data/news_breakfast.csv` (last 7–14 days). Identify:
+### 第四步：消息面分析
 
-- Major policy changes (fiscal stimulus, monetary easing/tightening)
-- Industry-specific developments (regulatory crackdowns, sector support)
-- International trade / geopolitical events (tariffs, sanctions, summits)
-- Regulatory actions (IPO freezes, capital market rules)
+读取 `data/news_breakfast.csv` 近 7～14 天的条目，识别：
 
-For each key piece of news, assess: bullish / bearish / neutral for which markets?
+- 重大政策变化（财政刺激、货币宽松/收紧）
+- 行业动态（监管整治、行业扶持）
+- 国际贸易 / 地缘政治事件（关税、制裁、峰会）
+- 监管行动（IPO 暂停、资本市场规则调整）
 
-### Step 5: Cross-Market Correlation
+对每条关键新闻，判断：对哪些市场利多/利空/中性？
 
-Compare trends across markets:
+### 第五步：跨市场联动
 
-- **US → China transmission**: S&P500/NASDAQ trends often lead A-share (SSE/CSI300/ChiNext) sentiment by 1 trading day
-- **Hong Kong bridge**: HSI reflects both US market overnight moves and China fundamentals; useful leading indicator
-- **Gold vs Equities**: Gold rising while equities fall = risk-off signal; inverse relationship is typical but not absolute
-- **Silver**: More industrial demand component than gold; rising silver with stable gold = growth optimism signal
+比较各市场趋势：
 
-### Step 6: Forward-Looking Assessment
+- **美股→A股传导**：标普500/纳斯达克走势通常领先 A 股（上证/沪深300/创业板）情绪约 1 个交易日
+- **港股桥梁**：恒生指数同时反映美股隔夜走势和中国基本面，是有效的领先指标
+- **黄金 vs 股票**：黄金上涨而股票下跌 = 避险信号；反向关系为常态，但并非绝对
+- **白银**：工业需求属性强于黄金；白银上涨而黄金稳定 = 经济增长乐观信号
 
-Combine calendar events with historical patterns:
+### 第六步：前瞻研判
 
-- What upcoming events could move markets? (from calendar check in Step 2)
-- How did markets historically react to similar event types?
-- Seasonal patterns: Spring Festival rally/hangover, year-end window dressing, quarterly rebalancing
-- Policy cycle: Where are we in the monetary/fiscal cycle? Late easing = caution, early stimulus = opportunity
+结合日历事件与历史规律：
 
-Be explicit about uncertainty. Say "historically X tended to Y, but current context Z may differ."
+- 哪些近期事件可能引发市场波动？（参考第二步的日历查询结果）
+- 市场历史上如何应对类似事件类型？
+- 季节性规律：春节行情（涨/节后回调）、年末窗口期、季度再平衡
+- 政策周期：目前处于货币/财政周期的哪个阶段？宽松末期需谨慎，刺激初期是机会
 
-### Step 7: Output
+对不确定性要明确表达，如："历史上 X 倾向于 Y，但当前背景 Z 可能有所不同。"
 
-**For conversational analysis**: Answer the user's specific question directly. Cite specific dates, prices, and percentage moves from the data. Do not pad with unnecessary sections.
+### 第七步：输出
 
-**For report generation**: Write a Markdown report to `docs/reports/YYYY-MM-DD-<type>.md` using the template below. Type is `daily`, `weekly`, or a descriptive label (e.g., `gold-analysis`).
+**对话式分析**：直接回答用户的具体问题，引用数据中的具体日期、价格和涨跌幅，不要堆砌无关内容。
 
-## Report Template
+**报告生成**：将 Markdown 报告写入 `docs/reports/YYYY-MM-DD-<type>.md`，类型使用 `daily` 或 `weekly`，格式参见下方模板。
 
-Save to: `docs/reports/YYYY-MM-DD-<type>.md`
+## 报告模板
+
+保存至：`docs/reports/YYYY-MM-DD-<type>.md`
 
     # 投资分析报告 — YYYY-MM-DD
 
@@ -146,11 +153,11 @@ Save to: `docs/reports/YYYY-MM-DD-<type>.md`
     ---
     *分析仅供参考，不构成投资建议。*
 
-## Important Rules
+## 重要规则
 
-- Always cite specific dates and numbers from the data — never fabricate data points
-- When uncertain about trends, say so explicitly — do not overfit narratives to random fluctuations
-- Always include the disclaimer: 分析仅供参考，不构成投资建议
-- For calendar operations, use the calendar-manager skill (via `uv run calendar-tool`)
-- Data may not be updated to today — always check the latest date in the CSV and note any data lag to the user
-- For long-term analysis (months/years), read more rows; for daily/weekly, last 60–200 rows is sufficient
+- 始终引用数据中的具体日期和数字，严禁捏造数据
+- 对趋势不确定时，明确说明——不要强行将随机波动纳入叙事
+- 所有输出必须包含免责声明：分析仅供参考，不构成投资建议
+- 日历操作使用 calendar-manager skill（通过 `uv run calendar-tool`）
+- 数据可能未更新到今天——始终检查 CSV 中的最新日期，并向用户说明数据滞后情况
+- 长期分析（月/年）多读行数；日/周分析读取末尾 60～200 行即可
