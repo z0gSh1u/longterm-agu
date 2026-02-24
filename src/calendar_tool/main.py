@@ -80,7 +80,7 @@ def main() -> None:
     add_parser.add_argument(
         "--source",
         default="manual",
-        choices=["manual", "news_extract"],
+        choices=["manual"],
         help="事件来源 (默认: manual)",
     )
 
