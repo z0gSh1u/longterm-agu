@@ -16,7 +16,7 @@ DATA_DIR = Path(__file__).parent.parent.parent / "data"
 CALENDAR_PATH = DATA_DIR / "calendar.csv"
 
 VALID_CATEGORIES = {"macro", "policy", "earnings", "geopolitical", "market", "other"}
-VALID_SOURCES = {"manual", "news_extract"}
+VALID_SOURCES = {"manual"}
 
 COLUMNS = ["id", "date", "event", "category", "source", "added_date"]
 
