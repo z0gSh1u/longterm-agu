@@ -1,10 +1,25 @@
 ---
 name: calendar-manager
-description: Manage the investment event calendar. Use when the user mentions calendar events, asks about upcoming events, wants to add/remove events, or when performing investment analysis that needs to check future events. Also use when processing news to extract future events.
+description: Manage the investment event calendar. Use when the user mentions calendar events, asks about upcoming events, wants to add/remove events, or when performing investment analysis that needs to check future events.
 compatibility: Requires uv and the calendar-tool entry point defined in pyproject.toml
 ---
 
 # 日历管理器
+
+## Calendar 定位
+
+**Calendar 只存储确定性事件**：有明确日期、已被官方公告或权威来源确认的排期事件。
+
+适合入库的事件：
+- 美联储 FOMC 会议（已公布全年日历）
+- 中国 CPI/PPI/PMI 等宏观数据发布日（统计局公告）
+- 上市公司财报截止日/业绩公告日（交易所公告）
+- 重要政策实施日（已颁布的法规生效日期）
+
+**不适合**入库的事件：
+- 新闻中提及的"预计"/"可能"/"将于"等模糊预期
+- 从财经早餐中读到的、尚未官方确认的未来事件
+- 已经发生的历史事件（那是 news_breakfast 的领域）
 
 ## 日历工具 CLI
 
@@ -43,32 +58,11 @@ uv run calendar-tool remove --id <event_id>
 - `market` — IPO、指数调整、期货交割日、股指期权到期
 - `other` — 其他不属于以上分类的事件
 
-## 从新闻中提取事件
-
-当用户要求从新闻中提取当天或未来事件，或在分析过程中判断有必要主动提取时：
-
-1. 使用 Read 工具读取目标日期的 `data/news_breakfast.csv`
-2. 逐条分析新闻摘要，识别文中提及的 **当天事件** 和 **未来事件**，重点关注：
-   - 已排期的会议或发布会（如"下周将召开……"、"定于X月X日……"）
-   - 数据发布日期（如"将于X日公布……"、"预计X月发布……"）
-   - 政策实施日期（如"自X月X日起实施……"）
-   - 财报公告或财务截止日期
-3. 对每个识别出的未来事件：
-   - 先运行 `uv run calendar-tool query --from <date> --to <date>` 检查是否已存在
-   - 若无重复，运行 `uv run calendar-tool add --date <date> --event "<描述>" --category <category> --source news_extract`
-4. 向用户汇报提取并添加了哪些事件
-
 ## 重要规则
 
 - 始终通过 CLI 工具操作，严禁直接编辑 CSV
-- 从新闻添加事件时，必须设置 `--source news_extract`
+- 只添加**确定性**事件：必须有明确日期且来源权威（官方公告、交易所披露等）
 - 用户手动请求添加事件时，使用默认来源 `--source manual`
 - 添加前通过 `query` 检查重复，避免冗余条目
 - 日期格式必须为 YYYY-MM-DD
-
-另外，不是每一条新闻都包含有价值的、需要被持久化到日历中的当天或未来事件，需要进行判断和筛选。例如：
-
-- 「2026-01-05,比亚迪2025年全年累计销量超460万辆，同比增长7.73%」
-  这条新闻的事件与 2026 年 1 月 5 日并没有直接关联，没有必要添加到日历中
-- 「2026-02-11,多家机器人企业成为2026年春晚合作伙伴，具身智能机器人将组团登上春晚舞台。」
-  这条新闻提到的事件是「2026年春晚」，且具身智能是重要的投资板块，因此可以网络搜索查证 2026 年春晚的具体日期后，将此事件添加到日历中。
+- **不要**将 news_breakfast 中读到的未来事件写入 Calendar——那些事件属于新闻报道层面，不具备 Calendar 要求的确定性
