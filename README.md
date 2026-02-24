@@ -121,6 +121,8 @@ uv run calendar-tool remove --id 1
 
 事件分类：`macro`（宏观）、`policy`（政策）、`earnings`（财报）、`geopolitical`（地缘）、`market`（市场）、`other`
 
+Calendar 只存储**确定性事件**（官方公告的排期）。新闻中的预期性事件请参阅 `news_breakfast`。
+
 ## 投资分析 Skills
 
 本项目集成了两个 Skills，可在支持 Agent Skills 的 AI 编程助手（如 Claude Code、OpenCode）中触发对话式投资分析。**所有分析仅供参考，不构成投资建议。**
@@ -143,7 +145,6 @@ uv run calendar-tool remove --id 1
 
 ```
 /calendar-management 帮我添加一个日历事件：3月20日美联储利率决议
-/calendar-management 从近三天的新闻中提取有明确日期的事件，并加入日历
 ```
 
 ## License
