@@ -45,6 +45,7 @@ compatibility: Requires uv and the calendar-tool entry point defined in pyprojec
 | `data/calendar.csv` | id, date, event, category, source, added_date |
 
 通过 `uv run calendar-tool` CLI 管理，详见 calendar-manager skill。
+**只包含确定性事件**（官方公告的排期），不含从新闻推断的预期性事件。
 
 ## 分析流程
 
@@ -93,6 +94,8 @@ uv run calendar-tool upcoming --days 14
 - 监管行动（IPO 暂停、资本市场规则调整）
 
 对每条关键新闻，判断：对哪些市场利多/利空/中性？
+
+> 注：news_breakfast 包含模糊预期性的未来事件描述；Calendar 只含官方排期的确定性事件。两者互补，分析时区别对待。
 
 ### 第五步：跨市场联动
 
