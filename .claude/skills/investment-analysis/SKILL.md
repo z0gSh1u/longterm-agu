@@ -38,15 +38,6 @@ compatibility: Requires uv and the calendar-tool entry point defined in pyprojec
 
 来自东方财富的每日财经早餐摘要，经 AI 处理。
 
-### 日历事件
-
-| 文件                | 字段                                          |
-| ------------------- | --------------------------------------------- |
-| `data/calendar.csv` | id, date, event, category, source, added_date |
-
-通过 `uv run calendar-tool` CLI 管理，详见 calendar-manager skill。
-**只包含确定性事件**（官方公告的排期），不含从新闻推断的预期性事件。
-
 ## 分析流程
 
 执行投资分析时，**按以下顺序**逐步操作：
