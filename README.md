@@ -1,65 +1,80 @@
 # Longterm AGU
 
+<p align="center">
+  <img src="hero.png" alt="Longterm AGU Hero Image" width="480px">
+</p>
+
+## 投资分析 Skills
+
+本项目集成了 Skills，可在支持 Agent Skills 的 AI 编程助手（如 Claude Code、OpenCode）中触发对话式投资分析。**所有分析仅供参考，不构成投资建议。**
+
+你可以克隆本项目，随后在目录中运行 Claude Code 或 OpenCode 来使用 Skill：
+
+```bash
+git clone git@github.com:z0gSh1u/longterm-agu.git
+claude
+```
+
+也可以使用 Vercel Skills.sh CLI 来安装：
+
+```bash
+npx skills add z0gSh1u/longterm-agu
+```
+
+触发 `investment-analysis` Skill 即可生成今日投资报告，并保存到 `reports/`：
+
+```
+/investment-analysis
+```
+
+**执行流程**：
+
+1. 自动运行 `update-data.sh` 从 GitHub Pages 下载最新数据，保存至 `.claude/skills/investment-analysis/assets/data`
+2. 运行 `check-data.sh` 检查数据最新日期
+3. 加载数据进行市场概览、技术面分析、消息面解读、跨市场联动分析、前瞻研判和风险提示
+4. 生成报告并保存
+
+默认包含市场概览、技术面分析、消息面解读、跨市场联动、前瞻研判、风险提示等内容。示例请见 [reports/2026-03-09.md](reports/2026-03-09.md)。
+
 ## 数据集说明
 
 ### 股票指数数据
 
-数据源：akshare
+**数据源**：akshare
 
 **指数列表**：
 
 - 上证指数 (sse_composite)
-
-  1990-12-19 起始
-  [data/stock_index_sse_composite.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/stock_index_sse_composite.csv)
-
 - 沪深300 (csi300)
-
-  2005-01-04 起始
-  [data/stock_index_csi300.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/stock_index_csi300.csv)
-
 - 创业板指 (chinext)
-
-  2010-06-01 起始
-  [data/stock_index_chinext.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/stock_index_chinext.csv)
-
 - 恒生指数 (hsi)
-
-  1990-05-14 起始
-  [data/stock_index_hsi.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/stock_index_hsi.csv)
-
 - 标普500 (sp500)
-
-  1986-03-17 起始
-  [data/stock_index_sp500.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/stock_index_sp500.csv)
-
 - 纳斯达克 (nasdaq)
 
-  1991-08-12 起始
-  [data/stock_index_nasdaq.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/stock_index_nasdaq.csv)
+**字段**：date 日期, code 代码, name 名称, open 开盘价, close 收盘价, high 最高价, low 最低价, amplitude 振幅。
 
-**字段**：date 日期, code 代码, name 名称, open 开盘价, close 收盘价, high 最高价, low 最低价, amplitude 振幅
+amplitude 振幅 = (最高价 - 最低价) / 昨日收盘价 × 100%。
+
+**示例数据**：
 
 ```
 date,code,name,open,close,high,low,amplitude
-2026-02-12,1,上证指数,4136.99,4134.02,4140.59,4124.13,0.4
-2026-02-13,1,上证指数,4115.92,4082.07,4123.84,4079.77,1.07
+2026-02-12,000001,上证指数,4136.99,4134.02,4140.59,4124.13,0.4
+2026-02-13,000001,上证指数,4115.92,4082.07,4123.84,4079.77,1.07
 ```
-
-**说明**：涨跌幅根据 open 和 close 确定（收盘价 > 开盘价为涨，反之为跌）
 
 ### 贵金属数据
 
-数据源：akshare，上海黄金交易所（SGE）现货基准价
+**数据源**：akshare，上海黄金交易所（SGE）现货基准价
 
 **说明**：
 
 - 黄金基准价（沪金）：单位 元/克
-  [data/precious_metal_gold.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/precious_metal_gold.csv)
 - 白银基准价（沪银）：单位 元/千克
-  [data/precious_metal_silver.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/precious_metal_silver.csv)
 
 **字段**：date 交易时间, evening_price 晚盘价, morning_price 早盘价
+
+**示例数据**：
 
 ```
 date,evening_price,morning_price
@@ -69,11 +84,11 @@ date,evening_price,morning_price
 
 ### 财经早餐新闻
 
-数据源：东方财富财经早餐，经 Firecrawl 提取后，用 gemini-3-flash-preview 总结成逐条摘要
-
-**文件**：[data/news_breakfast.csv](https://github.com/z0gSh1u/longterm-agu/blob/master/data/news_breakfast.csv)
+**数据源**：akshare，东方财富财经早餐，经 Firecrawl 提取后，用 gemini-3-flash-preview 总结成逐条摘要
 
 **字段**：date 发布日期, summary AI摘要, source_url 原文链接, source 数据来源（目前固定为 eastmoney_cjzc）
+
+**示例数据**：
 
 ```
 date,summary,source_url,source
@@ -83,39 +98,31 @@ date,summary,source_url,source
 
 ## 数据更新
 
-### 金融数据获取 (price-grep)
+数据每日由人工手动触发更新后，自动部署到 GitHub Pages，供 Skill 调用时拉取。通常无需关注如下更新流程。
 
-增量更新主要股指和贵金属价格数据：
+- 增量更新主要股指和贵金属价格数据：
 
-```bash
-uv run price-grep
-```
+  ```bash
+  uv run price-grep
+  ```
 
-### 财经新闻采集 (news-read)
+- 增量采集并总结东方财富财经早餐：
 
-增量采集并总结东方财富财经早餐：
+  ```bash
+  uv run news-read
+  ```
 
-```bash
-uv run news-read
-```
+环境变量需在 `.env` 配置，参考 `.env.example`。
 
-环境变量需在中 `.env` 配置，参考 `.env.example`。
+## FAQ
 
-## 投资分析 Skills
+- **为什么只包含了部分股指和贵金属的数据？没有个股数据吗？**
 
-本项目集成了 Skills，可在支持 Agent Skills 的 AI 编程助手（如 Claude Code、OpenCode）中触发对话式投资分析。**所有分析仅供参考，不构成投资建议。**
+  过去一年，沪深 300 创造了 20% 的涨幅，纳斯达克 100 创造了 15% 的涨幅，而黄金的涨幅更是高达 65%；投资者持有这些常见资产就能获得不错的回报。相比之下，个股的表现则参差不齐。因此，我们选择了这些代表性的指数和贵金属来进行分析，以更好地反映市场整体趋势，而不是过于关注个股的短期波动。
 
-在项目目录中启动 Claude Code，Skills 位于 `.claude/skills/`，会自动发现并按需加载。
+- **数据更新频率如何？**
 
-### 生成投资报告
-
-触发 investment-analysis Skill 即可生成今日投资报告，并保存到 `docs/reports/`：
-
-```
-/investment-analysis
-```
-
-默认包含市场概览、技术面分析、消息面解读、跨市场联动、前瞻研判、风险提示等内容。示例如 [2026-02-23-daily.md](./docs/reports/2026-02-23-daily.md)。
+  目前数据由人工触发更新，通常在每天交易结束后进行。我们计划未来实现自动化更新，以确保数据的及时性和准确性。
 
 ## License
 
