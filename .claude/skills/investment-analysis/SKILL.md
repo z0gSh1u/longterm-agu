@@ -1,62 +1,76 @@
 ---
 name: investment-analysis
-description: Analyze Chinese and global financial markets using local price data, news, and calendar events. Use when the user asks about market trends, investment analysis, stock indices, precious metals, or requests an investment report. Also use when the user mentions specific indices (上证, 沪深300, 创业板, 恒生, 标普500, 纳斯达克) or metals (黄金, 白银, 沪金, 沪银).
-compatibility: Requires uv and the calendar-tool entry point defined in pyproject.toml
+description: Analyze Chinese and global financial markets using local price data and news. Use when the user asks about market trends, investment analysis, stock indices, precious metals, or requests an investment report. Also use when the user mentions specific indices (上证, 沪深300, 创业板, 恒生, 标普500, 纳斯达克) or metals (黄金, 白银, 沪金, 沪银).
+user-invokable: true
+metadata:
+  author: z0gSh1u
 ---
 
 # 投资分析
 
-## 可用数据
-
-所有数据位于 `assets/data/` 目录：
-
-### 股票指数（日线 OHLC）
-
-| 文件                                       | 指数     | 字段                                                |
-| ------------------------------------------ | -------- | --------------------------------------------------- |
-| `assets/data/stock_index_sse_composite.csv` | 上证指数 | date, code, name, open, close, high, low, amplitude |
-| `assets/data/stock_index_csi300.csv`        | 沪深300  | 同上                                                |
-| `assets/data/stock_index_chinext.csv`       | 创业板指 | 同上                                                |
-| `assets/data/stock_index_hsi.csv`           | 恒生指数 | 同上                                                |
-| `assets/data/stock_index_sp500.csv`         | 标普500  | 同上                                                |
-| `assets/data/stock_index_nasdaq.csv`        | 纳斯达克 | 同上                                                |
-
-涨跌判断：收盘 > 开盘 = 涨，收盘 < 开盘 = 跌
-
-### 贵金属（日线，沪金单位：元/克；沪银单位：元/千克）
-
-| 文件                                 | 品种 | 字段                               |
-| ------------------------------------ | ---- | ---------------------------------- |
-| `assets/data/precious_metal_gold.csv`   | 沪金 | date, evening_price, morning_price |
-| `assets/data/precious_metal_silver.csv` | 沪银 | date, evening_price, morning_price |
-
-### 财经新闻
-
-| 文件                           | 字段                              |
-| ------------------------------ | --------------------------------- |
-| `assets/data/news_breakfast.csv` | date, summary, source_url, source |
-
-来自东方财富的每日财经早餐摘要，经 AI 处理。
+本技能用于分析中国和全球金融市场，使用本地价格数据和财经新闻进行分析。
 
 ## 分析流程
 
-执行投资分析时，**按以下顺序**逐步操作：
+执行投资分析时，**必须按以下顺序**逐步操作：
 
-### 第一步：加载数据
+### 第一步：更新数据
 
-使用 Read 工具读取相关 CSV 文件。近期分析读取每个文件末尾 200 行（使用 `offset` 参数）；长期趋势分析适当多读。
+数据是每日更新的，因此**必须先运行数据更新脚本**：
+
+```bash
+./scripts/update-data.sh
+```
+
+等待脚本执行完成，确保所有 CSV 文件已下载到 `assets/data/` 目录。
+
+**数据更新后，必须立即检查最新数据的日期**：
+
+```bash
+./scripts/check-data.sh
+```
+
+脚本会显示所有数据文件的最新日期，向用户汇报。
+
+如果脚本执行失败或网络问题导致下载不完整，须向用户说明情况，并询问是否继续使用现有数据进行分析。
+
+### 第二步：加载数据
+
+所有数据位于 `assets/data/` 目录，使用 Read 工具读取相关 CSV 文件。
+
+#### 股票指数（日线 OHLC）
+
+| 文件                            | 指数     | 字段                                                |
+| ------------------------------- | -------- | --------------------------------------------------- |
+| `stock_index_sse_composite.csv` | 上证指数 | date, code, name, open, close, high, low, amplitude |
+| `stock_index_csi300.csv`        | 沪深300  | 同上                                                |
+| `stock_index_chinext.csv`       | 创业板指 | 同上                                                |
+| `stock_index_hsi.csv`           | 恒生指数 | 同上                                                |
+| `stock_index_sp500.csv`         | 标普500  | 同上                                                |
+| `stock_index_nasdaq.csv`        | 纳斯达克 | 同上                                                |
+
+涨跌判断：收盘 > 开盘 = 涨，收盘 < 开盘 = 跌
+
+#### 贵金属（日线，沪金单位：元/克；沪银单位：元/千克）
+
+| 文件                        | 品种 | 字段                               |
+| --------------------------- | ---- | ---------------------------------- |
+| `precious_metal_gold.csv`   | 沪金 | date, evening_price, morning_price |
+| `precious_metal_silver.csv` | 沪银 | date, evening_price, morning_price |
+
+#### 财经新闻
+
+| 文件                 | 字段                              |
+| -------------------- | --------------------------------- |
+| `news_breakfast.csv` | date, summary, source_url, source |
+
+来自东方财富的每日财经早餐摘要，经 AI 处理。
+
+近期分析读取每个文件末尾 200 行（使用 `offset` 参数）；长期趋势分析适当多读。
 
 也可以使用 Grep 工具带着日期来读取 CSV 文件，快速定位到所需数据行。
 
 始终检查每个文件中的最新日期，若数据未更新到今天，须向用户说明数据滞后情况。
-
-### 第二步：查看日历
-
-```bash
-uv run calendar-tool upcoming --days 14
-```
-
-在开始分析前，先浏览所有近期事件及其潜在市场影响。
 
 ### 第三步：技术面分析
 
@@ -86,8 +100,6 @@ uv run calendar-tool upcoming --days 14
 
 对每条关键新闻，判断：对哪些市场利多/利空/中性？
 
-> 注：news_breakfast 包含模糊预期性的未来事件描述；Calendar 只含官方排期的确定性事件。两者互补，分析时区别对待。
-
 ### 第五步：跨市场联动
 
 比较各市场趋势：
@@ -99,9 +111,8 @@ uv run calendar-tool upcoming --days 14
 
 ### 第六步：前瞻研判
 
-结合日历事件与历史规律：
+基于历史规律分析：
 
-- 哪些近期事件可能引发市场波动？（参考第二步的日历查询结果）
 - 市场历史上如何应对类似事件类型？
 - 季节性规律：春节行情（涨/节后回调）、年末窗口期、季度再平衡
 - 政策周期：目前处于货币/财政周期的哪个阶段？宽松末期需谨慎，刺激初期是机会
@@ -112,11 +123,11 @@ uv run calendar-tool upcoming --days 14
 
 **对话式分析**：直接回答用户的具体问题，引用数据中的具体日期、价格和涨跌幅，不要堆砌无关内容。
 
-**报告生成**：将 Markdown 报告写入 `docs/reports/YYYY-MM-DD-<type>.md`，类型使用 `daily` 或 `weekly`，格式参见下方模板。
+**报告生成**：将 Markdown 报告写入 `docs/reports/YYYY-MM-DD.md`，格式参见下方模板。
 
 ## 报告模板
 
-保存至：`docs/reports/YYYY-MM-DD-<type>.md`
+保存至：`docs/reports/YYYY-MM-DD.md`
 
     # 投资分析报告 — YYYY-MM-DD
 
@@ -136,9 +147,9 @@ uv run calendar-tool upcoming --days 14
 
     （全球市场相关性分析：美股传导、港股桥梁作用、贵金属避险信号。）
 
-    ## 未来事件与展望
+## 未来展望
 
-    （日历中的近期事件列表 + 基于分析的前瞻研判。每个事件标注日期和潜在影响方向。）
+（基于分析的前瞻研判。标注潜在的市场走向和风险因素。）
 
     ## 风险提示
 
@@ -147,21 +158,9 @@ uv run calendar-tool upcoming --days 14
     ---
     *分析仅供参考，不构成投资建议。*
 
-## 数据更新
-
-运行以下命令更新 assets/data/ 中的 CSV 文件：
-
-```bash
-./.claude/skills/investment-analysis/scripts/update-data.sh
-```
-
-该脚本会从 GitHub 下载最新的市场数据文件。
-
 ## 重要规则
 
 - 始终引用数据中的具体日期和数字，严禁捏造数据
 - 对趋势不确定时，明确说明——不要强行将随机波动纳入叙事
 - 所有输出必须包含免责声明：分析仅供参考，不构成投资建议
-- 日历操作使用 calendar-manager skill（通过 `uv run calendar-tool`）
 - 数据可能未更新到今天——始终检查 CSV 中的最新日期，并向用户说明数据滞后情况
-- 长期分析（月/年）多读行数；日/周分析读取末尾 60～200 行即可
