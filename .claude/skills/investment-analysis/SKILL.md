@@ -8,33 +8,33 @@ compatibility: Requires uv and the calendar-tool entry point defined in pyprojec
 
 ## 可用数据
 
-所有数据位于 `data/` 目录：
+所有数据位于 `assets/data/` 目录：
 
 ### 股票指数（日线 OHLC）
 
-| 文件                                 | 指数     | 字段                                                |
-| ------------------------------------ | -------- | --------------------------------------------------- |
-| `data/stock_index_sse_composite.csv` | 上证指数 | date, code, name, open, close, high, low, amplitude |
-| `data/stock_index_csi300.csv`        | 沪深300  | 同上                                                |
-| `data/stock_index_chinext.csv`       | 创业板指 | 同上                                                |
-| `data/stock_index_hsi.csv`           | 恒生指数 | 同上                                                |
-| `data/stock_index_sp500.csv`         | 标普500  | 同上                                                |
-| `data/stock_index_nasdaq.csv`        | 纳斯达克 | 同上                                                |
+| 文件                                       | 指数     | 字段                                                |
+| ------------------------------------------ | -------- | --------------------------------------------------- |
+| `assets/data/stock_index_sse_composite.csv` | 上证指数 | date, code, name, open, close, high, low, amplitude |
+| `assets/data/stock_index_csi300.csv`        | 沪深300  | 同上                                                |
+| `assets/data/stock_index_chinext.csv`       | 创业板指 | 同上                                                |
+| `assets/data/stock_index_hsi.csv`           | 恒生指数 | 同上                                                |
+| `assets/data/stock_index_sp500.csv`         | 标普500  | 同上                                                |
+| `assets/data/stock_index_nasdaq.csv`        | 纳斯达克 | 同上                                                |
 
 涨跌判断：收盘 > 开盘 = 涨，收盘 < 开盘 = 跌
 
 ### 贵金属（日线，沪金单位：元/克；沪银单位：元/千克）
 
-| 文件                             | 品种 | 字段                               |
-| -------------------------------- | ---- | ---------------------------------- |
-| `data/precious_metal_gold.csv`   | 沪金 | date, evening_price, morning_price |
-| `data/precious_metal_silver.csv` | 沪银 | date, evening_price, morning_price |
+| 文件                                 | 品种 | 字段                               |
+| ------------------------------------ | ---- | ---------------------------------- |
+| `assets/data/precious_metal_gold.csv`   | 沪金 | date, evening_price, morning_price |
+| `assets/data/precious_metal_silver.csv` | 沪银 | date, evening_price, morning_price |
 
 ### 财经新闻
 
-| 文件                      | 字段                              |
-| ------------------------- | --------------------------------- |
-| `data/news_breakfast.csv` | date, summary, source_url, source |
+| 文件                           | 字段                              |
+| ------------------------------ | --------------------------------- |
+| `assets/data/news_breakfast.csv` | date, summary, source_url, source |
 
 来自东方财富的每日财经早餐摘要，经 AI 处理。
 
@@ -77,7 +77,7 @@ uv run calendar-tool upcoming --days 14
 
 ### 第四步：消息面分析
 
-读取 `data/news_breakfast.csv` 近 7～14 天的条目，识别：
+读取 `assets/data/news_breakfast.csv` 近 7～14 天的条目，识别：
 
 - 重大政策变化（财政刺激、货币宽松/收紧）
 - 行业动态（监管整治、行业扶持）
