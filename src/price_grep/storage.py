@@ -7,7 +7,14 @@ from pathlib import Path
 import pandas as pd
 
 
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
+DATA_DIR = (
+    Path(__file__).parent.parent.parent
+    / ".claude"
+    / "skills"
+    / "investment-analysis"
+    / "assets"
+    / "data"
+)
 ERROR_LOG_PATH = DATA_DIR / "price_grep_errors.txt"
 
 

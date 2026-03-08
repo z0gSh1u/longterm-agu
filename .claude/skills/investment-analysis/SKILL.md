@@ -147,6 +147,16 @@ uv run calendar-tool upcoming --days 14
     ---
     *分析仅供参考，不构成投资建议。*
 
+## 数据更新
+
+运行以下命令更新 assets/data/ 中的 CSV 文件：
+
+```bash
+./.claude/skills/investment-analysis/scripts/update-data.sh
+```
+
+该脚本会从 GitHub 下载最新的市场数据文件。
+
 ## 重要规则
 
 - 始终引用数据中的具体日期和数字，严禁捏造数据

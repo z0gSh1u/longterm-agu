@@ -10,7 +10,14 @@ from pathlib import Path
 import pandas as pd
 
 
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
+DATA_DIR = (
+    Path(__file__).parent.parent.parent
+    / ".claude"
+    / "skills"
+    / "investment-analysis"
+    / "assets"
+    / "data"
+)
 ERROR_LOG_PATH = DATA_DIR / "news_read_errors.txt"
 
 
@@ -45,7 +52,9 @@ def append_single_item(item: NewsItem) -> bool:
     old_df = pd.read_csv(file_path, encoding="utf-8-sig")
     merged = pd.concat([old_df, new_df], ignore_index=True)
     merged = merged.drop_duplicates(subset=["date", "summary"], keep="first")
-    merged = merged.sort_values("date", ascending=True, kind='stable').reset_index(drop=True)
+    merged = merged.sort_values("date", ascending=True, kind="stable").reset_index(
+        drop=True
+    )
 
     if len(merged) > len(old_df):
         merged.to_csv(file_path, index=False, encoding="utf-8-sig")
