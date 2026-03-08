@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BASE_URL="https://raw.githubusercontent.com/z0gSh1u/longterm-agu/refs/heads/master/.claude/skills/investment-analysis/assets/data"
+BASE_URL="https://zxuuu.link/longterm-agu/data"
 DATA_DIR="$(dirname "$0")/../assets/data"
 
 FILES=(
