@@ -1,74 +1,94 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>longterm-agu Data</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
-            line-height: 1.6;
-        }
-        h1 {
-            color: #333;
-        }
-        a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .file-list {
-            margin-top: 30px;
-        }
-        .file-list ul {
-            list-style: none;
-            padding: 0;
-        }
-        .file-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .notice {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            border-left: 4px solid #ffc107;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+        line-height: 1.6;
+      }
+      h1 {
+        color: #333;
+      }
+      a {
+        color: #0066cc;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .file-list {
+        margin-top: 30px;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .table-cell {
+        padding-block: 6px;
+        text-align: left;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>longterm-agu Data</h1>
-    
-    <p>本页面提供投资分析所需的金融市场数据，通过 Cloudflare CDN 加速访问。</p>
-    
-    <div class="notice">
-        <strong>提示：</strong> 数据文件位于 <code>data/</code> 目录下，请直接访问下方链接或使用脚本下载。
-    </div>
-    
+
+    <p>
+      本页面为
+      <a href="https://github.com/z0gSh1u/longterm-agu" target="_blank"
+        >z0gSh1u/longterm-agu</a
+      >
+      提供投资分析所需的金融市场数据，通过 Cloudflare CDN 加速访问。请访问 GitHub
+      仓库了解详情。
+    </p>
+
     <h2>数据文件</h2>
     <div class="file-list">
-        <ul>
-            <li><a href="data/stock_index_sse_composite.csv">上证指数</a></li>
-            <li><a href="data/stock_index_csi300.csv">沪深300</a></li>
-            <li><a href="data/stock_index_chinext.csv">创业板指</a></li>
-            <li><a href="data/stock_index_hsi.csv">恒生指数</a></li>
-            <li><a href="data/stock_index_sp500.csv">标普500</a></li>
-            <li><a href="data/stock_index_nasdaq.csv">纳斯达克</a></li>
-            <li><a href="data/precious_metal_gold.csv">沪金</a></li>
-            <li><a href="data/precious_metal_silver.csv">沪银</a></li>
-            <li><a href="data/news_breakfast.csv">财经新闻</a></li>
-        </ul>
+      <table class="data-table">
+        <tr>
+          <td class="table-cell">
+            <a href="data/stock_index_sse_composite.csv">上证指数</a>
+          </td>
+          <td class="table-cell">
+            <a href="data/stock_index_csi300.csv">沪深300</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="table-cell">
+            <a href="data/stock_index_chinext.csv">创业板指</a>
+          </td>
+          <td class="table-cell">
+            <a href="data/stock_index_hsi.csv">恒生指数</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="table-cell">
+            <a href="data/stock_index_sp500.csv">标普500</a>
+          </td>
+          <td class="table-cell">
+            <a href="data/stock_index_nasdaq.csv">纳斯达克</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="table-cell">
+            <a href="data/precious_metal_gold.csv">沪金</a>
+          </td>
+          <td class="table-cell">
+            <a href="data/precious_metal_silver.csv">沪银</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="table-cell">
+            <a href="data/news_breakfast.csv">财经新闻</a>
+          </td>
+          <td class="table-cell"></td>
+        </tr>
+      </table>
     </div>
-    
-    <p style="margin-top: 40px;">
-        <strong>GitHub 仓库：</strong>
-        <a href="https://github.com/z0gSh1u/longterm-agu">z0gSh1u/longterm-agu</a>
-    </p>
-</body>
+  </body>
 </html>
