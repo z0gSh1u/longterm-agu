@@ -84,7 +84,7 @@ date,evening_price,morning_price
 
 ### 财经早餐新闻
 
-**数据源**：akshare，东方财富财经早餐，经 Firecrawl 提取后，用 gemini-3-flash-preview 总结成逐条摘要
+**数据源**：akshare，东方财富财经早餐，经 Firecrawl 提取后，用 mimo-v2-flash 总结成逐条摘要
 
 **字段**：date 发布日期, summary AI摘要, source_url 原文链接, source 数据来源（目前固定为 eastmoney_cjzc）
 
