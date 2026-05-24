@@ -16,7 +16,6 @@ dependencies = [
 [project.scripts]
 price-grep = "price_grep.main:main"
 news-read = "news_read.main:main"
-calendar-tool = "calendar_tool.main:main"
 
 [build-system]
 requires = ["hatchling"]
